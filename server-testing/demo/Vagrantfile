@@ -1,0 +1,21 @@
+Vagrant.configure("2") do |config|
+  #config.vm.box = "debian/trixie64"
+  config.vm.box = "cloud-image/debian-13"
+
+  config.vm.network "private_network", ip: "192.168.56.10"
+
+  config.vm.provision "file",
+    source: "goss/goss.yaml",
+    destination: "/tmp/goss.yaml"
+
+  config.vm.provision "shell", inline: <<~SHELL
+    curl -fsSL https://github.com/goss-org/goss/releases/latest/download/goss-linux-amd64 \
+      -o /usr/local/bin/goss && chmod +x /usr/local/bin/goss
+    mkdir -p /etc/goss
+    mv /tmp/goss.yaml /etc/goss/goss.yaml
+  SHELL
+
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "ansible/playbook.yml"
+  end
+end

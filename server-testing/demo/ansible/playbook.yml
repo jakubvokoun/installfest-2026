@@ -1,0 +1,5 @@
+- name: Provision caddy demo
+  hosts: all
+  become: true
+  roles:
+    - caddy

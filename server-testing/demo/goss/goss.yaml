@@ -1,0 +1,14 @@
+package:
+  caddy:
+    installed: true
+
+service:
+  caddy:
+    enabled: true
+    running: true
+
+port:
+  tcp6:80:
+    listening: true
+  tcp6:443:
+    listening: true

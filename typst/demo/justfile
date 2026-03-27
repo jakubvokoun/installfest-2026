@@ -1,0 +1,37 @@
+# List available tasks
+default:
+    @just --list
+
+# Compile all demos
+all: cv data slides
+
+# Compile CV demo
+cv:
+    typst compile cv/cv.typ cv/cv.pdf
+    xdg-open cv/cv.pdf
+
+# Compile data demo
+data:
+    typst compile data/data.typ data/data.pdf
+    xdg-open data/data.pdf
+
+# Compile slides demo
+slides:
+    typst compile slides/slides.typ slides/slides.pdf
+    xdg-open slides/slides.pdf
+
+# Watch CV demo (live preview)
+watch-cv:
+    typst watch cv/cv.typ cv/cv.pdf
+
+# Watch data demo (live preview)
+watch-data:
+    typst watch data/data.typ data/data.pdf
+
+# Watch slides demo (live preview)
+watch-slides:
+    typst watch slides/slides.typ slides/slides.pdf
+
+# Remove all generated PDFs
+clean:
+    rm -f **/*.pdf

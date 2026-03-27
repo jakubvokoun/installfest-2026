@@ -1,0 +1,73 @@
+# List available tasks
+default:
+    @just --list
+
+# Start VM and run provisioning
+up:
+    vagrant up
+
+# Re-run provisioning on a running VM
+provision:
+    vagrant provision
+
+# Stop VM
+halt:
+    vagrant halt
+
+# Destroy VM
+destroy:
+    vagrant destroy -f
+
+# Show VM status
+status:
+    vagrant status
+
+# SSH into VM
+ssh:
+    vagrant ssh
+
+# Run all tests
+test: test-goss test-testinfra test-serverspec
+
+# Run Goss tests inside the VM
+test-goss:
+    vagrant ssh -c "sudo goss -g /etc/goss/goss.yaml validate --format documentation"
+
+# Run Testinfra tests via SSH
+test-testinfra:
+    vagrant ssh-config > .vagrant-ssh-config
+    pytest testinfra/ --ssh-config=.vagrant-ssh-config --hosts=ssh://default -v
+
+# Install Serverspec dependencies
+bundle-install:
+    cd serverspec && bundle install
+
+# Run Serverspec tests via SSH
+test-serverspec: bundle-install
+    vagrant ssh-config > .vagrant-ssh-config
+    cd serverspec && bundle exec rspec spec/ --format documentation
+
+# Run all tests and produce JUnit XML output for CI
+test-ci: test-ci-goss test-ci-testinfra test-ci-serverspec
+
+# Run Goss tests and save JUnit results
+test-ci-goss:
+    vagrant ssh -c "sudo goss -g /etc/goss/goss.yaml validate --format junit" \
+        > results-goss.xml
+
+# Run Testinfra tests and save JUnit results
+test-ci-testinfra:
+    vagrant ssh-config > .vagrant-ssh-config
+    pytest testinfra/ --ssh-config=.vagrant-ssh-config --hosts=ssh://default --junit-xml=results-testinfra.xml
+
+# Run Serverspec tests and save JUnit results
+test-ci-serverspec: bundle-install
+    cd serverspec && bundle exec rspec spec/ \
+        --format RspecJunitFormatter --out ../results-serverspec.xml
+
+# Full demo workflow: up → test → destroy
+demo: up test destroy
+
+# Destroy VM and remove generated files
+clean: destroy
+    rm -f .vagrant-ssh-config

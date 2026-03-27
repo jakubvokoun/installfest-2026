@@ -1,0 +1,6 @@
+.vagrant/
+.vagrant-ssh-config
+serverspec/Gemfile.lock
+serverspec/.bundle/
+results-*.xml
+__pycache__/
